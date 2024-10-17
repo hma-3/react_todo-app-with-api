@@ -1,26 +1,89 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import { FC, useEffect } from 'react';
 
-const USER_ID = 0;
+import { useTodo } from './hooks/useTodo';
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
+import { TodoErrorNotification } from './components/TodoErrorNotification';
+
+export const App: FC = () => {
+  const {
+    todos,
+    todosAmount,
+    loadingTodoIds,
+    tempTodo,
+    editingTodo,
+    setEditingTodo,
+    activeTodosAmount,
+    errorMessage,
+    statusFilter,
+    setStatusFilter,
+    handleResetErrorMessage,
+    handleLoadTodos,
+    handleDeleteTodo,
+    handleClearCompleted,
+    isFocusedInput,
+    newTodoTitle,
+    handleNewTodoTitleChange: handleTitleChange,
+    isLoadingSubmit,
+    handleSubmitForm,
+    handleToggleTodo,
+    handleToggleAllTodos,
+    handleRenameTodo,
+  } = useTodo();
+
+  useEffect(() => {
+    handleResetErrorMessage();
+    handleLoadTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoHeader
+          todosAmount={todosAmount}
+          activeTodosAmount={activeTodosAmount}
+          isFocusedInput={isFocusedInput}
+          newTodoTitle={newTodoTitle}
+          onTitleChange={handleTitleChange}
+          isLoadingSubmit={isLoadingSubmit}
+          onSubmitForm={handleSubmitForm}
+          onToggleAllTodos={handleToggleAllTodos}
+        />
+
+        {!!todosAmount && (
+          <>
+            <TodoList
+              todos={todos}
+              loadingTodoIds={loadingTodoIds}
+              tempTodo={tempTodo}
+              editingTodo={editingTodo}
+              setEditingTodo={setEditingTodo}
+              statusFilter={statusFilter}
+              onDeleteTodo={handleDeleteTodo}
+              onToggleTodo={handleToggleTodo}
+              onRenameTodo={handleRenameTodo}
+            />
+
+            <TodoFooter
+              leftTodos={activeTodosAmount}
+              statusFilter={statusFilter}
+              onChangeStatusFilter={setStatusFilter}
+              todosAmount={todosAmount}
+              onClearCompleted={handleClearCompleted}
+            />
+          </>
+        )}
+      </div>
+
+      <TodoErrorNotification
+        errorMessage={errorMessage}
+        onResetErrorMessage={handleResetErrorMessage}
+      />
+    </div>
   );
 };
