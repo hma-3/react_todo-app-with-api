@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useCallback, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { ErrorMessages, StatusFilter, Todo } from '../types';
 import {
   addTodo,
@@ -9,42 +9,36 @@ import {
 } from '../api/todos';
 import { useNewTodo } from './useNewTodo';
 import { countLeftTodos, getCompletedTodoIds } from '../utils';
+import { useError } from './useError';
 
 export const useTodo = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [errorMessage, setErrorMessage] = useState<ErrorMessages>(
-    ErrorMessages.DEFAULT,
-  );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(
     StatusFilter.All,
   );
 
   const {
     newTodoTitle,
-    setNewTodoTitle,
-    isLoadingNewTodoSubmit: isLoadingSubmit,
-    setIsLoadingNewTodoSubmit: setIsLoadingSubmit,
-    isFocusedNewTodoInput: isFocusedInput,
-    setIsFocusedNewTodoInput: setIsFocusedInput,
+    handleNewTodoTitleChange,
+    tempTodo,
+    handleAddTempTodo,
+    handleResetTempTodo,
+    resetNewTodoTitle,
+    isLoadingNewTodoSubmit,
+    setIsLoadingNewTodoSubmit,
+    isFocusedNewTodoInput,
+    setIsFocusedNewTodoInput,
   } = useNewTodo();
+
+  const { errorMessage, handleError, handleResetErrorMessage } = useError();
 
   const todosAmount = todos.length;
   const activeTodosAmount = useMemo(() => countLeftTodos(todos), [todos]);
   const completedTodoIds = useMemo(() => getCompletedTodoIds(todos), [todos]);
 
-  const handleResetErrorMessage = useCallback(
-    () => setErrorMessage(ErrorMessages.DEFAULT),
-    [],
-  );
-
-  const handleError = (message: ErrorMessages) => {
-    setErrorMessage(message);
-    setTimeout(handleResetErrorMessage, 3000);
-  };
-
+  // Get Todos
   const handleLoadTodos = () => {
     getTodos()
       .then(currentTodos => {
@@ -53,6 +47,7 @@ export const useTodo = () => {
       .catch(() => handleError(ErrorMessages.LOADING_TODOS));
   };
 
+  // Delete One Todo
   const handleDeleteTodo = (todoId: Todo['id']) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
 
@@ -72,14 +67,14 @@ export const useTodo = () => {
       );
   };
 
-  const handleClearCompleted = () => {
+  // Delete All Completed Todos
+  const handleClearCompleted = useCallback(() => {
     completedTodoIds.forEach(id => handleDeleteTodo(id));
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedTodoIds]);
 
-  const handleNewTodoTitleChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setNewTodoTitle(event.target.value);
-
-  const handleSubmitForm = (event: FormEvent<HTMLFormElement>) => {
+  //Add New Todo on Submit
+  const handleAddTodoFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTitle = newTodoTitle.trim();
@@ -96,36 +91,38 @@ export const useTodo = () => {
       userId: USER_ID,
     };
 
-    setIsLoadingSubmit(true);
-    setTempTodo({ ...newTodo, id: 0 });
-    setIsFocusedInput(false);
+    setIsLoadingNewTodoSubmit(true);
+    handleAddTempTodo({ ...newTodo, id: 0 });
+    setIsFocusedNewTodoInput(false);
 
     addTodo(newTodo)
       .then(todo => {
         setTodos(currentTodos => [...currentTodos, todo]);
-        setNewTodoTitle('');
+        resetNewTodoTitle();
       })
       .catch(() => handleError(ErrorMessages.ADDING_TODO))
       .finally(() => {
-        setIsLoadingSubmit(false);
-        setTempTodo(null);
-        setIsFocusedInput(true);
+        setIsLoadingNewTodoSubmit(false);
+        handleResetTempTodo();
+        setIsFocusedNewTodoInput(true);
       });
   };
 
+  // Update Todo
   const handleUpdateTodo = (
     todoId: Todo['id'],
     { ...todoData }: Partial<Todo>,
   ) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
 
-    return updateTodo({ id: todoId, ...todoData })
+    updateTodo({ id: todoId, ...todoData })
       .then(updatedTodo => {
         setTodos(currentTodos =>
           currentTodos.map(todo =>
             todo.id === updatedTodo.id ? updatedTodo : todo,
           ),
         );
+
         setEditingTodo(null);
       })
       .catch(() => {
@@ -137,6 +134,7 @@ export const useTodo = () => {
       .finally(() => setLoadingTodoIds(ids => ids.filter(id => id !== todoId)));
   };
 
+  // Toggle Todo Status
   const handleToggleTodo = (
     todoId: Todo['id'],
     isTodoCompleted: Todo['completed'],
@@ -144,6 +142,7 @@ export const useTodo = () => {
     handleUpdateTodo(todoId, { completed: !isTodoCompleted });
   };
 
+  // Toggle All Todos Status
   const handleToggleAllTodos = () => {
     todos.forEach(todo => {
       if (todo.completed === !activeTodosAmount) {
@@ -152,6 +151,7 @@ export const useTodo = () => {
     });
   };
 
+  // Rename Todo
   const handleRenameTodo = ({ id, title }: Todo, newTitle: string) => {
     if (!newTitle.length) {
       handleDeleteTodo(id);
@@ -174,6 +174,13 @@ export const useTodo = () => {
     handleUpdateTodo(id, { title: newTitle });
   };
 
+  // Load Todos
+  useEffect(() => {
+    handleResetErrorMessage();
+    handleLoadTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return {
     todos,
     todosAmount,
@@ -183,17 +190,16 @@ export const useTodo = () => {
     setEditingTodo,
     activeTodosAmount,
     errorMessage,
+    handleResetErrorMessage,
     statusFilter,
     setStatusFilter,
-    handleResetErrorMessage,
-    handleLoadTodos,
     handleDeleteTodo,
     handleClearCompleted,
-    isFocusedInput,
+    isFocusedNewTodoInput,
     newTodoTitle,
     handleNewTodoTitleChange,
-    isLoadingSubmit,
-    handleSubmitForm,
+    isLoadingNewTodoSubmit,
+    handleAddTodoFormSubmit,
     handleToggleTodo,
     handleToggleAllTodos,
     handleRenameTodo,

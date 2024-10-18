@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './TodoList.scss';
 
@@ -11,7 +11,7 @@ interface Props {
   loadingTodoIds: number[];
   tempTodo: Todo | null;
   editingTodo: Todo | null;
-  setEditingTodo: Dispatch<SetStateAction<Todo | null>>;
+  setEditingTodo: (todo: Todo | null) => void;
   statusFilter: StatusFilter;
   onDeleteTodo: (todoId: Todo['id']) => void;
   onToggleTodo: (

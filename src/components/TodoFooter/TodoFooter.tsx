@@ -5,18 +5,18 @@ import { StatusFilter } from '../../types';
 import { TodoFilter } from '../TodoFilter';
 
 interface Props {
+  todosAmount: number;
   leftTodos: number;
   statusFilter: StatusFilter;
   onChangeStatusFilter: (status: StatusFilter) => void;
-  todosAmount: number;
   onClearCompleted: () => void;
 }
 
 export const TodoFooter: FC<Props> = ({
+  todosAmount,
   leftTodos,
   statusFilter,
   onChangeStatusFilter,
-  todosAmount,
   onClearCompleted,
 }) => (
   <footer className="todoapp__footer" data-cy="Footer">

@@ -1,22 +1,15 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import {
-  FC,
-  useEffect,
-  useRef,
-  useState,
-  Dispatch,
-  SetStateAction,
-  FormEvent,
-} from 'react';
+import { FC, useEffect, useState } from 'react';
 import cn from 'classnames';
 import './TodoItem.scss';
 
 import { Todo } from '../../types';
+import { RenameTodoForm } from '../TodoUpdateForm';
 
 interface Props {
   todo: Todo;
   editingTodo?: Todo | null;
-  setEditingTodo?: Dispatch<SetStateAction<Todo | null>>;
+  setEditingTodo?: (todo: Todo | null) => void;
   loadingTodoIds?: number[];
   onDeleteTodo?: (todoId: Todo['id']) => void;
   onToggleTodo?: (
@@ -40,25 +33,6 @@ export const TodoItem: FC<Props> = ({
   const [updatedTitle, setUpdatedTitle] = useState('');
   const isBeingEditing = editingTodo?.id === id;
   const isLoading = id === 0 ? true : loadingTodoIds?.includes(id);
-  const titleField = useRef<HTMLInputElement>(null);
-
-  document.addEventListener('keyup', event => {
-    if (event.key === 'Escape') {
-      setEditingTodo(null);
-      setUpdatedTitle(title);
-    }
-  });
-
-  const handleRenameTodoFormSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    onRenameTodo(todo, updatedTitle.trim());
-  };
-
-  useEffect(() => {
-    if (isBeingEditing) {
-      titleField.current?.focus();
-    }
-  }, [isBeingEditing]);
 
   useEffect(() => {
     setUpdatedTitle(title);
@@ -83,18 +57,14 @@ export const TodoItem: FC<Props> = ({
       </label>
 
       {isBeingEditing ? (
-        <form onSubmit={handleRenameTodoFormSubmit}>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            ref={titleField}
-            value={updatedTitle}
-            onChange={event => setUpdatedTitle(event.target.value)}
-            onBlur={() => onRenameTodo(todo, updatedTitle.trim())}
-          />
-        </form>
+        <RenameTodoForm
+          todo={todo}
+          setEditingTodo={setEditingTodo}
+          updatedTitle={updatedTitle}
+          setUpdatedTitle={setUpdatedTitle}
+          isBeingEditing={isBeingEditing}
+          onRenameTodo={onRenameTodo}
+        />
       ) : (
         <>
           <span

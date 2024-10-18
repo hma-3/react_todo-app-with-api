@@ -1,5 +1,3 @@
-import { FC, useEffect } from 'react';
-
 import { useTodo } from './hooks/useTodo';
 
 import { TodoHeader } from './components/TodoHeader';
@@ -7,7 +5,7 @@ import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { TodoErrorNotification } from './components/TodoErrorNotification';
 
-export const App: FC = () => {
+export const App = () => {
   const {
     todos,
     todosAmount,
@@ -17,27 +15,20 @@ export const App: FC = () => {
     setEditingTodo,
     activeTodosAmount,
     errorMessage,
+    handleResetErrorMessage,
     statusFilter,
     setStatusFilter,
-    handleResetErrorMessage,
-    handleLoadTodos,
     handleDeleteTodo,
     handleClearCompleted,
-    isFocusedInput,
+    isFocusedNewTodoInput,
     newTodoTitle,
-    handleNewTodoTitleChange: handleTitleChange,
-    isLoadingSubmit,
-    handleSubmitForm,
+    handleNewTodoTitleChange,
+    isLoadingNewTodoSubmit,
+    handleAddTodoFormSubmit,
     handleToggleTodo,
     handleToggleAllTodos,
     handleRenameTodo,
   } = useTodo();
-
-  useEffect(() => {
-    handleResetErrorMessage();
-    handleLoadTodos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="todoapp">
@@ -47,11 +38,11 @@ export const App: FC = () => {
         <TodoHeader
           todosAmount={todosAmount}
           activeTodosAmount={activeTodosAmount}
-          isFocusedInput={isFocusedInput}
+          isFocusedInput={isFocusedNewTodoInput}
           newTodoTitle={newTodoTitle}
-          onTitleChange={handleTitleChange}
-          isLoadingSubmit={isLoadingSubmit}
-          onSubmitForm={handleSubmitForm}
+          onTitleChange={handleNewTodoTitleChange}
+          isLoadingSubmit={isLoadingNewTodoSubmit}
+          onSubmitForm={handleAddTodoFormSubmit}
           onToggleAllTodos={handleToggleAllTodos}
         />
 

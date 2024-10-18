@@ -11,27 +11,25 @@ interface Props {
 export const TodoFilter: FC<Props> = ({
   statusFilter,
   onChangeStatusFilter,
-}) => {
-  return (
-    <nav className="filter" data-cy="Filter">
-      {Object.values(StatusFilter).map(status => {
-        const isSelectedCurrentStatus = statusFilter === status;
-        const link = `#/${status === StatusFilter.All ? '' : status.toLocaleLowerCase()}`;
+}) => (
+  <nav className="filter" data-cy="Filter">
+    {Object.values(StatusFilter).map(status => {
+      const isSelectedCurrentStatus = statusFilter === status;
+      const link = `#/${status === StatusFilter.All ? '' : status.toLocaleLowerCase()}`;
 
-        return (
-          <a
-            key={status}
-            data-cy={`FilterLink${status}`}
-            href={link}
-            className={cn('filter__link', {
-              selected: isSelectedCurrentStatus,
-            })}
-            onClick={() => onChangeStatusFilter(status)}
-          >
-            {status}
-          </a>
-        );
-      })}
-    </nav>
-  );
-};
+      return (
+        <a
+          key={status}
+          data-cy={`FilterLink${status}`}
+          href={link}
+          className={cn('filter__link', {
+            selected: isSelectedCurrentStatus,
+          })}
+          onClick={() => onChangeStatusFilter(status)}
+        >
+          {status}
+        </a>
+      );
+    })}
+  </nav>
+);
