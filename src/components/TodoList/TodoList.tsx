@@ -8,6 +8,7 @@ import { TodoItem } from '../TodoItem';
 
 interface Props {
   todos: Todo[];
+  todosAmount: number;
   loadingTodoIds: number[];
   tempTodo: Todo | null;
   editingTodo: Todo | null;
@@ -23,6 +24,7 @@ interface Props {
 
 export const TodoList: FC<Props> = ({
   todos,
+  todosAmount,
   loadingTodoIds,
   tempTodo,
   editingTodo,
@@ -40,22 +42,28 @@ export const TodoList: FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
-        {visibleTodos.map(todo => (
-          <CSSTransition key={todo.id} timeout={300} classNames="item" appear>
-            <TodoItem
-              todo={todo}
-              editingTodo={editingTodo}
-              setEditingTodo={setEditingTodo}
-              loadingTodoIds={loadingTodoIds}
-              onDeleteTodo={onDeleteTodo}
-              onToggleTodo={onToggleTodo}
-              onRenameTodo={onRenameTodo}
-            />
-          </CSSTransition>
-        ))}
+        {!!todosAmount &&
+          visibleTodos.map(todo => (
+            <CSSTransition key={todo.id} timeout={300} classNames="item" appear>
+              <TodoItem
+                todo={todo}
+                editingTodo={editingTodo}
+                setEditingTodo={setEditingTodo}
+                loadingTodoIds={loadingTodoIds}
+                onDeleteTodo={onDeleteTodo}
+                onToggleTodo={onToggleTodo}
+                onRenameTodo={onRenameTodo}
+              />
+            </CSSTransition>
+          ))}
 
         {tempTodo && (
-          <CSSTransition key={tempTodo.id} timeout={300} classNames="temp-item">
+          <CSSTransition
+            key={tempTodo.id}
+            timeout={300}
+            classNames="temp-item"
+            appear
+          >
             <TodoItem todo={tempTodo} />
           </CSSTransition>
         )}

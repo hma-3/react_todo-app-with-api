@@ -46,28 +46,27 @@ export const App = () => {
           onToggleAllTodos={handleToggleAllTodos}
         />
 
-        {!!todosAmount && (
-          <>
-            <TodoList
-              todos={todos}
-              loadingTodoIds={loadingTodoIds}
-              tempTodo={tempTodo}
-              editingTodo={editingTodo}
-              setEditingTodo={setEditingTodo}
-              statusFilter={statusFilter}
-              onDeleteTodo={handleDeleteTodo}
-              onToggleTodo={handleToggleTodo}
-              onRenameTodo={handleRenameTodo}
-            />
+        <TodoList
+          todos={todos}
+          todosAmount={todosAmount}
+          loadingTodoIds={loadingTodoIds}
+          tempTodo={tempTodo}
+          editingTodo={editingTodo}
+          setEditingTodo={setEditingTodo}
+          statusFilter={statusFilter}
+          onDeleteTodo={handleDeleteTodo}
+          onToggleTodo={handleToggleTodo}
+          onRenameTodo={handleRenameTodo}
+        />
 
-            <TodoFooter
-              leftTodos={activeTodosAmount}
-              statusFilter={statusFilter}
-              onChangeStatusFilter={setStatusFilter}
-              todosAmount={todosAmount}
-              onClearCompleted={handleClearCompleted}
-            />
-          </>
+        {!!todosAmount && (
+          <TodoFooter
+            leftTodos={activeTodosAmount}
+            statusFilter={statusFilter}
+            onChangeStatusFilter={setStatusFilter}
+            todosAmount={todosAmount}
+            onClearCompleted={handleClearCompleted}
+          />
         )}
       </div>
 
