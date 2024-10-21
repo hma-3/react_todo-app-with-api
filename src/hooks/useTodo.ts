@@ -38,7 +38,6 @@ export const useTodo = () => {
   const activeTodosAmount = useMemo(() => countLeftTodos(todos), [todos]);
   const completedTodoIds = useMemo(() => getCompletedTodoIds(todos), [todos]);
 
-  // Get Todos
   const handleLoadTodos = () => {
     getTodos()
       .then(currentTodos => {
@@ -47,7 +46,6 @@ export const useTodo = () => {
       .catch(() => handleError(ErrorMessages.LOADING_TODOS));
   };
 
-  // Delete One Todo
   const handleDeleteTodo = (todoId: Todo['id']) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
 
@@ -67,13 +65,11 @@ export const useTodo = () => {
       );
   };
 
-  // Delete All Completed Todos
   const handleClearCompleted = useCallback(() => {
     completedTodoIds.forEach(id => handleDeleteTodo(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [completedTodoIds]);
 
-  //Add New Todo on Submit
   const handleAddTodoFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -108,7 +104,6 @@ export const useTodo = () => {
       });
   };
 
-  // Update Todo
   const handleUpdateTodo = (
     todoId: Todo['id'],
     { ...todoData }: Partial<Todo>,
@@ -134,7 +129,6 @@ export const useTodo = () => {
       .finally(() => setLoadingTodoIds(ids => ids.filter(id => id !== todoId)));
   };
 
-  // Toggle Todo Status
   const handleToggleTodo = (
     todoId: Todo['id'],
     isTodoCompleted: Todo['completed'],
@@ -142,7 +136,6 @@ export const useTodo = () => {
     handleUpdateTodo(todoId, { completed: !isTodoCompleted });
   };
 
-  // Toggle All Todos Status
   const handleToggleAllTodos = () => {
     todos.forEach(todo => {
       if (todo.completed === !activeTodosAmount) {
@@ -151,7 +144,6 @@ export const useTodo = () => {
     });
   };
 
-  // Rename Todo
   const handleRenameTodo = ({ id, title }: Todo, newTitle: string) => {
     if (!newTitle.length) {
       handleDeleteTodo(id);
@@ -174,7 +166,6 @@ export const useTodo = () => {
     handleUpdateTodo(id, { title: newTitle });
   };
 
-  // Load Todos
   useEffect(() => {
     handleResetErrorMessage();
     handleLoadTodos();

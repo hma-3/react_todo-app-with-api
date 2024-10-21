@@ -1,10 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ErrorMessages } from '../types';
 
 export const useError = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessages>(
     ErrorMessages.DEFAULT,
   );
+
+  const errorTimeoutId = useRef<NodeJS.Timeout>();
 
   const handleResetErrorMessage = useCallback(
     () => setErrorMessage(ErrorMessages.DEFAULT),
@@ -13,7 +15,9 @@ export const useError = () => {
 
   const handleError = (message: ErrorMessages) => {
     setErrorMessage(message);
-    setTimeout(handleResetErrorMessage, 3000);
+    clearTimeout(errorTimeoutId.current);
+
+    errorTimeoutId.current = setTimeout(handleResetErrorMessage, 3000);
   };
 
   return { errorMessage, handleError, handleResetErrorMessage };
